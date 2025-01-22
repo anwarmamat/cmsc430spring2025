@@ -2,16 +2,16 @@
 (provide (all-defined-out))
 (require scribble/core scribble/html-properties scribble/manual) 
 
-;(define prof1 (link "https://jmct.cc" "José Manuel Calderón Trilla"))
-;(define prof1-pronouns "he/him")
-;(define prof1-email "jmct@cs.umd.edu")
-;(define prof1-initials "JMCT")
-
 (define prof1 (link "https://www.cs.umd.edu/~anwar/" "Anwar Mamat"))
-(define prof2 (link "https://www.cs.umd.edu/people/milijana" "Milijana Surbatovich"))
 (define prof1-pronouns "he/him")
-(define prof1-email "dvanhorn@cs.umd.edu")
+(define prof1-email "anwar@umd.edu")
 (define prof1-initials "AM")
+
+(define prof2 (link "https://www.cs.umd.edu/people/milijana" "Milijana Surbatovich"))
+(define prof2-email "milijana@umd.edu")
+(define prof2-pronouns "he/him")
+(define prof2-initials "MS")
+
 
 (define semester "spring")
 (define year "2025")
@@ -49,8 +49,10 @@
 
 
 (define lecture-schedule1 "TTh, 2:00-3:15pm")
+(define lecture-schedule2 "TTh, 3:30-4:45pm")
 
-(define classroom1 "LEF 2205")
+(define classroom1 "ESJ 2204")
+(define classroom2 "IRB 0318")
 
 ;(define discord "TBD")
 (define piazza "https://piazza.com/umd/spring2025/cmsc430/home")
