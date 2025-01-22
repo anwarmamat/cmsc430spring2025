@@ -15,6 +15,7 @@
 
 
 @;{ Fall }
+@;{
 @tabular[#:style 'boxed
          #:sep @hspace[1]
          #:row-properties '(bottom-border)
@@ -110,104 +111,22 @@
 		     @secref{Outlaw}
 		     @elem{@secref{Outlaw}, cont.})
 
-)]
+)]}
 
 @;{ Spring }
-@;{
 @tabular[#:style 'boxed
          #:sep @hspace[1]
          #:row-properties '(bottom-border)
-         (list (list @bold{Week}
-                     @bold{Due}
-                     @bold{Monday}
-                     @bold{Wednesday})
+         (list (list @bold{Week} @bold{Date} @bold{Topic} @bold{Assignment Released})
 
-               (list @wk{1/22}
-	       	           ""
-	             "No class"
-                     @secref["Intro"])
-		               
+		 @; Week 1
+               (list ""
+                     @day{01/28}
+                     @secref{Intro}
+                     @seclink["Assignment 1"]{A1})
 
-               (list @wk{1/29}
-	       	     ""
-	             @elem{@secref["OCaml to Racket"]}
-                     @elem{@secref["OCaml to Racket"]})
+		 )]
 
-               (list @wk{2/5}
-                     @seclink["Assignment 1"]{A1}
-                     @elem{@secref["a86"]}
-                     @elem{@secref["a86"]})
-
-               (list @wk{2/12}
-                     @seclink["Assignment 2"]{A2}
-		     @itemlist[@item{@secref["Abscond"]}
-                               @item{@secref["Blackmail"]}]
-                     @itemlist[@item{@secref["Con"]}
-                               @item{@secref["Dupe"]}])
-
-               (list @wk{2/19}
-                     @elem{@seclink["Assignment 2"]{A3}}
-		     @itemlist[@item{@secref["Dodger"]}
-                               @item{@secref["Evildoer"]}]
-	             @secref["Evildoer"])
-
-               (list @wk{2/26}
-                     ""
-		     @secref{Extort}
-		     @secref{Fraud})
-
-               (list @wk{3/4}
-                     ""
-		     @secref{Fraud}
-		     @secref["Midterm_1"])
-
-               (list @wk{3/11}
-                     ""
-		     @secref{Fraud}
-		     @secref{Hustle})
-               (list @wk{3/18}
-	             ""
-		     @elem{Spring Break}
-		     @elem{Spring Break})
-               (list @wk{3/25}
-	             @elem{@seclink["Assignment 4"]{A4} P1}
-		     @secref{Hustle}
-		     @secref{Hustle})
-
-               (list @wk{4/1}
-                     @elem{@seclink["Assignment 4"]{A4} P2}
-		     @secref{Hoax}
-		     @secref{Iniquity})
-
-               (list @wk{4/8}
-                     ""
-		     @secref{Iniquity}
-		     @secref{Iniquity})
-
-
-	       (list @wk{4/15}
-	             ""
-		     @secref{Knock}
-		     @secref["Midterm_2"])
-		     
-
-               (list @wk{4/22}
-	             ""
-		     @secref{Jig}
-		     @secref{Loot})
-
-               (list @wk{4/29}
-	             @elem{@seclink["Assignment 5"]{A5}}
-		     @secref{Loot}
-		     @secref{Mug})
-
-               (list @wk{5/6}
-	             ""
-		     @secref{Neerdowell}
-		     @secref{Outlaw})
-
-)]
-}
 
 @;{
 @tabular[#:style 'boxed
