@@ -7,16 +7,17 @@
 ;(define prof1-email "jmct@cs.umd.edu")
 ;(define prof1-initials "JMCT")
 
-(define prof1 (link "https://www.cs.umd.edu/~dvanhorn/" "David Van Horn"))
+(define prof1 (link "https://www.cs.umd.edu/~anwar/" "Anwar Mamat"))
+(define prof2 (link "https://www.cs.umd.edu/people/milijana" "Milijana Surbatovich"))
 (define prof1-pronouns "he/him")
 (define prof1-email "dvanhorn@cs.umd.edu")
-(define prof1-initials "DVH")
+(define prof1-initials "AM")
 
-(define semester "fall")
-(define year "2024")
+(define semester "spring")
+(define year "2025")
 (define courseno "CMSC 430")
 
-(define lecture-dates "" #;"May 30 -- July 7, 2023")
+(define lecture-dates "" #;"Jan 28 -- Dec 13, 2025")
 
 (define IRB "IRB") 
 (define AVW "AVW")
@@ -25,10 +26,10 @@
 (define office-hour-location (elem AVW " " "4122"))
 
 
-(define m1-date "October 10")
-(define m2-date "November 7")
+(define m1-date "March 13")
+(define m2-date "April 17")
 (define midterm-hours "24")
-(define final-date "Saturday, December 14")
+(define final-date "Monday, May 19")
 (define final-end-time "12:30PM")
 (define elms-url "https://umd.instructure.com/courses/1368381")
 
@@ -40,18 +41,10 @@
         (list "Kalyan Bhetwal" "kbhetwal@umd.edu")
         ;(list "Justin Frank" "jpfrank@umd.edu")
 	(list "Deena Postol" "dpostol@umd.edu")
-        (list "Caspar Popova" "caspar@umd.edu")
+        ;(list "Caspar Popova" "caspar@umd.edu")
         (list "Emma Shroyer" "eshroyer@umd.edu")
-	(list "Kazi Tasnim Zinat" "kzintas@umd.edu")
-	#;(list "Fuxiao Liu" "fl3es@umd.edu")
-	#;(list "Vivian Chen" "vchen8@terpmail.umd.edu")
-	#;(list "Ian Morrill" "imorrill@terpmail.umd.edu")
-	#;(list "Matthew Schneider" "mgl@umd.edu")
-	#;(list "Rhea Jajodia" "rjajodia@terpmail.umd.edu")
-	#;(list "Syed Zaidi" "szaidi@umd.edu")
-	#;(list "William Wegand" "wfweg@verizon.net")
-	#;(list "Wilson Smith" "smith@umd.edu")
-	#;(list "Yuhwan Lee" "ylee9251@terpmail.umd.edu")
+	;(list "Kazi Tasnim Zinat" "kzintas@umd.edu")
+
         ))
 
 
@@ -60,8 +53,8 @@
 (define classroom1 "LEF 2205")
 
 ;(define discord "TBD")
-(define piazza "https://piazza.com/umd/fall2024/cmsc430/home")
-(define gradescope "https://www.gradescope.com/courses/818295")
+(define piazza "https://piazza.com/umd/spring2025/cmsc430/home")
+(define gradescope "https://www.gradescope.com/courses/963811")
 
 (define feedback "https://forms.gle/A6U3CCR2KyA86UTh6")
 
