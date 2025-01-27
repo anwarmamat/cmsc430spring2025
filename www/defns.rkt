@@ -38,15 +38,15 @@
 
 (define staff
   (list (list "Pierce Darragh" "pdarragh@umd.edu")
-        (list "Kalyan Bhetwal" "kbhetwal@umd.edu")
-        ;(list "Justin Frank" "jpfrank@umd.edu")
+        (list "Kalyan Bhetwal" "kbhetwal@umd.edu")        
 	(list "Deena Postol" "dpostol@umd.edu")
-        ;(list "Caspar Popova" "caspar@umd.edu")
         (list "Emma Shroyer" "eshroyer@umd.edu")
-	;(list "Kazi Tasnim Zinat" "kzintas@umd.edu")
-
+        (list "Haohong (Peter) Li" "lih@umd.edu")
+        (list "Badalov	Samuel"	"sbadalov@terpmail.umd.edu")
+        (list "Edward Feng" "edwfeng@terpmail.umd.edu")
+        (list "Eric McKinney" "ericmckinney.md@gmail.com")
+        (list "Sanchay Ravindiran" "sanchay@terpmail.umd.edu")
         ))
-
 
 (define lecture-schedule1 "TTh, 2:00-3:15pm")
 (define lecture-schedule2 "TTh, 3:30-4:45pm")
