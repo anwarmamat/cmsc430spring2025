@@ -1,6 +1,6 @@
 #lang racket
 (provide (all-defined-out))
-(require scribble/core scribble/html-properties scribble/manual) 
+(require scribble/core scribble/html-properties scribble/manual)
 
 (define prof1 (link "https://www.cs.umd.edu/~anwar/" "Anwar Mamat"))
 (define prof1-pronouns "he/him")
@@ -9,7 +9,7 @@
 
 (define prof2 (link "https://www.cs.umd.edu/people/milijana" "Milijana Surbatovich"))
 (define prof2-email "milijana@umd.edu")
-(define prof2-pronouns "he/him")
+(define prof2-pronouns "she/her")
 (define prof2-initials "MS")
 
 
@@ -19,7 +19,7 @@
 
 (define lecture-dates "" #;"Jan 28 -- Dec 13, 2025")
 
-(define IRB "IRB") 
+(define IRB "IRB")
 (define AVW "AVW")
 (define KEY "KEY")
 
@@ -37,14 +37,14 @@
 (define racket-version "8.13")
 
 (define staff
-  (list (list "Pierce Darragh" "pdarragh@umd.edu")
-        (list "Kalyan Bhetwal" "kbhetwal@umd.edu")        
-	(list "Deena Postol" "dpostol@umd.edu")
-        (list "Emma Shroyer" "eshroyer@umd.edu")
+  (list (list "Pierce Darragh"     "pdarragh@umd.edu")
+        (list "Deena Postol"       "dpostol@umd.edu")
+        (list "Kalyan Bhetwal"     "kbhetwal@umd.edu")
+        (list "Emma Shroyer"       "eshroyer@umd.edu")
         (list "Haohong (Peter) Li" "lih@umd.edu")
-        (list "Badalov	Samuel"	"sbadalov@terpmail.umd.edu")
-        (list "Edward Feng" "edwfeng@terpmail.umd.edu")
-        (list "Eric McKinney" "ericmckinney.md@gmail.com")
+        (list "Samuel Badalov"     "sbadalov@terpmail.umd.edu")
+        (list "Edward Feng"        "edwfeng@terpmail.umd.edu")
+        (list "Eric McKinney"      "ericmckinney.md@gmail.com")
         (list "Sanchay Ravindiran" "sanchay@terpmail.umd.edu")
         ))
 
@@ -61,9 +61,9 @@
 (define feedback "https://forms.gle/A6U3CCR2KyA86UTh6")
 
 (define (assign-deadline i)
-  (list-ref '("Tuesday, September 10, 11:59PM"
-              "Thursday, September 12, 11:59PM"
-              "Thursday, October 3, 11:59PM"
-              "Thursday, October 31, 11:59PM"
-              "Tuesday, November 26, 11:59PM")            
+  (list-ref '("Tuesday, February 11, 11:59PM"
+              "Tuesday, February 18, 11:59PM"
+              "Tuesday, March 4, 11:59PM"
+              "Tuesday, April 8, 11:59PM"
+              "Tuesday, April 22, 11:59PM")
             (sub1 i)))
