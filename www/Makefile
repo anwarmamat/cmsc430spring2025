@@ -28,7 +28,7 @@ scribble:
 		$(course).scrbl
 
 push:
-	rsync -rvzp main/ dvanhorn@junkfood.cs.umd.edu:/fs/www/class/spring2025/cmsc430/
+	rsync -rvzp main/ anwar@junkfood.cs.umd.edu:/fs/www/class/spring2025/cmsc430/
 
 clean:
 	rm -rf $(course)

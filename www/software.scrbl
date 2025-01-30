@@ -280,8 +280,7 @@ library.
 
 To install, run the following command:
 
-@verbatim|{raco pkg install --auto 'https://github.com/cmsc430/www.git?path=langs#main'}|
-
+@verbatim|{raco pkg install --auto 'https://github.com/cmsc430/langs.git'}|
 To test the package works as expected, run:
 
 @verbatim|{raco test -p langs}|
