@@ -48,17 +48,25 @@ implement several related languages.
 
 @tabular[#:style 'boxed
          #:row-properties '(bottom-border ())
-         (list (list @bold{Time}  @bold{Monday} @bold{Tuesday} @bold{Wednesday} @bold{Thursday}  @bold{Friday})
-               (list      "8 AM"  'cont 'cont 'cont 'cont 'cont)
-               (list      "9 AM"  'cont 'cont 'cont 'cont 'cont)
-               (list     "10 AM"  'cont 'cont 'cont 'cont 'cont)
-               (list     "11 AM"  'cont 'cont 'cont 'cont 'cont)
-               (list     "12 PM"  'cont 'cont 'cont 'cont 'cont)
-               (list      "1 PM"  'cont 'cont 'cont 'cont 'cont)
-               (list      "2 PM"  'cont 'cont 'cont 'cont 'cont)
-               (list      "3 PM"  'cont 'cont 'cont 'cont 'cont)
-               (list      "4 PM"  'cont 'cont 'cont 'cont 'cont)
-               (list      "5 PM"  'cont 'cont 'cont 'cont 'cont))]
+         (list (list @bold{Time}  @bold{Monday} @bold{Tuesday} @bold{Wednesday} @bold{Thursday}   @bold{Friday})
+               (list  "9:00 AM"   'cont         "Kalyan"       "Deena"          "Deena, Kalyan"   'cont)
+               (list  "9:30 AM"   'cont         "Kalyan"       "Deena"          "Deena, Kalyan"   'cont)
+               (list "10:00 AM"   "Peter"       "Kalyan"       "Deena"          "Deena, Kalyan"   "Peter")
+               (list "10:30 AM"   "Peter"       "Kalyan"       "Deena"          "Deena, Kalyan"   "Peter")
+               (list "11:00 AM"   "Peter"       "Deena"        "Deena"          "Deena"           "Peter")
+               (list "11:30 AM"   "Peter"       "Deena"        "Deena"          "Deena"           "Peter")
+               (list "12:00 PM"   "Eric"        'cont          "Samuel, Eric"   'cont             "Peter")
+               (list "12:30 PM"   "Eric"        "Eric"         "Samuel, Eric"   "Samuel"          "Peter")
+               (list  "1:00 PM"   'cont         "Eric"         "Samuel"         "Samuel, Kalyan"  "Edward")
+               (list  "1:30 PM"   'cont         'cont          "Samuel"         "Kalyan"          "Edward")
+               (list  "2:00 PM"   "Edward"      "Sanchay"      "Edward"         "Sanchay, Pierce" 'cont)
+               (list  "2:30 PM"   "Edward"      "Sanchay"      "Edward"         "Sanchay, Pierce" 'cont)
+               (list  "3:00 PM"   'cont         'cont          'cont            "Pierce"          "Sanchay")
+               (list  "3:30 PM"   "Emma"        'cont          "Emma"           "Pierce"          "Sanchay")
+               (list  "4:00 PM"   "Emma"        'cont          "Emma"           'cont             'cont)
+               (list  "4:30 PM"   "Emma"        'cont          "Emma"           'cont             'cont)
+               (list  "5:00 PM"   "Emma"        'cont          "Emma"           'cont             'cont)
+               (list  "5:30 PM"   "Emma"        'cont          "Emma"           'cont             'cont))]
 
 @bold{Communications:} @link[@elms-url]{ELMS}, @link[@piazza]{Piazza}
 
