@@ -69,7 +69,7 @@ Instruction for using each system are below:
 @section[#:tag "Linux"]{Using Linux}
 
 If you have an ARM-based machine, you will need to use
-@seclink["GRACE"]{GRACE} or potentially setup an x86 VM.
+@seclink["GRACE"]{GRACE} or potentially set up an x86 VM.
 
 For x86-based Linux machines, you will need to
 @seclink["install-racket"]{install Racket} and the
@@ -99,7 +99,7 @@ You will also want to make sure your Racket installation is visible
 from your @tt{PATH} environment variable.  Assuming Racket was
 installed in the usual location, you can run:
 
-@verbatim|{   export PATH=$PATH:"/Applications/Racket v|@|racket-version|/bin"}|
+@verbatim|{   export PATH="/Applications/Racket v|@|racket-version|/bin:$PATH"}|
 
 NOTE: You'll need to know what version of Racket you installed and use that
 version's name in the above command. For example, if you install Racket 8.6,
@@ -140,18 +140,22 @@ some Linux Distribution. Here is a breakdown of the steps:
  #:style 'ordered
  @item{Following the instructions at
   @link["https://docs.microsoft.com/en-us/windows/wsl/install-win10"]{
-   this link}, install a Linux Distro of your choice (e.g.,
-  Ubuntu). The instructions include a suggestion to upgrade to
-  WSL2; this is not necessary but will improve efficiency in
-  general.}
+   this link}, install a Linux distribution of your choice (e.g.,
+  Ubuntu).}
 
  @item{Open your installed Linux distribution of choice and
-  make any initial configurations necessary (user, pass,
-  etc.). Run @tt{sudo apt update} and follow with @tt{sudo apt
-   upgrade}. These two may take some time. }
+  make any initial configurations necessary (user, password,
+  etc.).}
 
- @item{Run @tt{sudo apt install racket} and @tt{
-   sudo apt install nasm}. These two should cover the necessary
+ @item{Run @tt{sudo add-apt-repository ppa:plt/racket} and @tt{sudo apt update}
+  to update your package manager so it can find recent version of Racket. This
+  may take some time.}
+
+ @item{Run @tt{sudo apt upgrade} to update any base packages to their most
+  recent versions.}
+
+ @item{Run @tt{sudo apt install build-essential libssl-dev zip nasm racket}.
+  This will probably take a while, but it should cover the necessary software
   installations for this course.}
 
  @item{Here is where to determine which IDE you would like to
@@ -195,7 +199,7 @@ subsystem by entering the project directory and using the raco command.
 @margin-note{GRACE is unfortunately not well maintained by the
 university and is recommended only as a last resort.  Please contact
 course staff if you plan to use GRACE for this class so we can help
-make sure everything is set-up properly.}
+make sure everything is set up properly.}
 
 The @link["http://www.grace.umd.edu/"]{GRACE} system gives students
 access to an x86-64 Linux system that meets all of the system
