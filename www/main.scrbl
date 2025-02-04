@@ -46,13 +46,15 @@ implement several related languages.
 
 @bold{Office hours:} @office-hour-location
 
+Each @bold{Time} indicates the start of a 30-minute block.
+
 @tabular[#:style 'boxed
          #:row-properties '(bottom-border ())
          (list (list @bold{Time}  @bold{Monday} @bold{Tuesday} @bold{Wednesday} @bold{Thursday}   @bold{Friday})
-               (list  "9:00 AM"   'cont         "Kalyan"       "Deena"          "Deena, Kalyan"   'cont)
-               (list  "9:30 AM"   'cont         "Kalyan"       "Deena"          "Deena, Kalyan"   'cont)
-               (list "10:00 AM"   "Peter"       "Kalyan"       "Deena"          "Deena, Kalyan"   "Peter")
-               (list "10:30 AM"   "Peter"       "Kalyan"       "Deena"          "Deena, Kalyan"   "Peter")
+               (list  "9:00 AM"   'cont         "Kalyan"       "Deena"          "Kalyan"          'cont)
+               (list  "9:30 AM"   'cont         "Kalyan"       "Deena"          "Kalyan"          'cont)
+               (list "10:00 AM"   "Peter"       "Kalyan"       "Deena"          "Kalyan"          "Peter")
+               (list "10:30 AM"   "Peter"       "Kalyan"       "Deena"          "Kalyan"          "Peter")
                (list "11:00 AM"   "Peter"       "Deena"        "Deena"          "Deena"           "Peter")
                (list "11:30 AM"   "Peter"       "Deena"        "Deena"          "Deena"           "Peter")
                (list "12:00 PM"   "Eric"        'cont          "Samuel, Eric"   'cont             "Peter")
