@@ -58,7 +58,7 @@
 (define piazza "https://piazza.com/umd/spring2025/cmsc430/home")
 (define gradescope "https://www.gradescope.com/courses/963811")
 
-(define feedback "https://forms.gle/A6U3CCR2KyA86UTh6")
+(define feedback "https://forms.gle/KQ2WQxSrDGurnzRf7")
 
 (define (assign-deadline i)
   (list-ref '("Tuesday, February 11, 11:59PM"

@@ -120,10 +120,31 @@
          (list (list @bold{Week} @bold{Date} @bold{Topic} @bold{Assignment Released})
 
                @; Week 1
-               (list ""
+               (list "Week 1"
                      @day{01/28}
                      @secref{Intro}
                      @seclink["Assignment 1"]{A1})
+               
+                (list ""
+                     @day{01/30}
+                     @secref["OCaml to Racket"]
+                     "Quiz 1")
+               @; Week 2
+               (list "Week 2"
+                     @day{02/04}
+                     @secref["a86"]
+                     "")
+               (list ""
+                     @day{02/06}
+                     @secref["a86"]
+                     @seclink["Assignment 1"]{A2})
+
+                  @; Week 3
+               (list "Week 3"
+                     @day{02/11}
+                     @itemlist[@item{@secref["Abscond"]}
+                                    @item{@secref["Blackmail"]}]
+                     "")
 
                )]
 
