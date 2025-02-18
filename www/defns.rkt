@@ -5,6 +5,8 @@
 (define prof1 (link "https://www.cs.umd.edu/~anwar/" "Anwar Mamat"))
 (define prof1-pronouns "he/him")
 (define prof1-email "anwar@umd.edu")
+(define prof1-ohs (list (list "W 1:00-2:00pm" (link "https://umd.zoom.us/j/7932256846?omn=91816199279" "Zoom"))
+                  (list  "Th 4:00-5:00" "IRB 2248")))
 (define prof1-initials "AM")
 
 (define prof2 (link "https://www.cs.umd.edu/people/milijana" "Milijana Surbatovich"))
@@ -34,7 +36,7 @@
 (define elms-url "https://umd.instructure.com/courses/1368381")
 
 
-(define racket-version "8.13")
+(define racket-version "8.15")
 
 (define staff
   (list (list "Pierce Darragh"     "pdarragh@umd.edu")

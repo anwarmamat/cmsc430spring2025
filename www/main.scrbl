@@ -25,7 +25,10 @@
 
 @emph{Lecture}: @lecture-schedule1, @classroom1
 
-
+Office Hours: @itemize{
+    @(for/list ([i prof1-ohs]) (item (car i) ", " (cdr i)))
+    
+}
 @emph{Professor}: @prof2
 
 @emph{Lecture}: @lecture-schedule2, @classroom2

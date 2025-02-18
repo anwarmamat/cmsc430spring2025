@@ -142,13 +142,13 @@
                   @; Week 3
                (list "Week 3"
                      @day{02/11}
-                     @itemlist[@item{@secref["Abscond"]}
-                                    @item{@secref["Blackmail"]}]
-                     "")
-
+                     @secref["Abscond"]
+                     "Quzi 2")
+                  (list ""
+                     @day{02/13}
+                     @secref["Blackmail"]
+                     "Quiz 3")
                )]
-
-
 @;{
 @tabular[#:style 'boxed
          #:sep @hspace[1]
