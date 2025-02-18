@@ -87,8 +87,9 @@ boolean literals.
 @section[#:tag-prefix "a3-" #:style 'unnumbered]{Implementing Dupe+}
 
 You must extend the parser, interpreter, and compiler to implement
-Dupe+.  You are given a file @tt{dupe-plus.zip} on ELMS with a starter
-compiler based on the @secref{Dupe} language we studied in class.
+Dupe+.  You are given a file @tt{dupe-plus.zip} in the assignment
+description on ELMS with a starter compiler based on the @secref{Dupe}
+language we studied in class.
 
 You may use any a86 instructions you'd like, however it is possible to
 complete the assignment using @racket[Cmp], @racket[Je], @racket[Jg],
@@ -105,7 +106,7 @@ To do this, you should:
 @itemlist[
 @item{Study @tt{ast.rkt} and the new forms of expression (i.e. new AST nodes)
       then update the comment at the top describing what the grammmar should look like.}
-      
+
 @item{Study @tt{parse.rkt} and add support for parsing these
 expressions. (See @secref[#:tag-prefixes '("a3-")]{parse} for guidance.)}
 
@@ -182,7 +183,7 @@ Here's a potential AST definition for the added primitives,
 
 ;; type Datum = Integer | Boolean
 
-;; type Op = 
+;; type Op =
 ;; ...
 ;; | 'abs | '- | 'not
 
@@ -246,15 +247,18 @@ You can test your code in several ways:
 
 @itemlist[
 
- @item{Using the command line @tt{raco test .} from
-  the directory containing the repository to test everything.}
+ @item{Using the command line @tt{raco test test/all.rkt} from
+  the @tt{dupe-plus} directory to test everything.}
 
  @item{Using the command line @tt{raco test <file>} to
-  test only @tt{<file>}.}
+  test only @tt{<file>}, e.g., @tt{raco test test/compile.rkt} from
+  within the @tt{dupe-plus} directory to test only the compiler.}
 ]
 
 Note that only a small number of tests are given to you, so you should
-write additional test cases.
+write additional test cases. We recommend adding new test cases to the
+@tt{Student} test suite in the @tt{test/tests.rkt} file to keep things
+organized.
 
 @section[#:tag-prefix "a3-" #:style 'unnumbered]{Submitting}
 

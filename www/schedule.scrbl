@@ -124,11 +124,11 @@
                      @day{01/28}
                      @secref{Intro}
                      @seclink["Assignment 1"]{A1})
-               
-                (list ""
+               (list ""
                      @day{01/30}
                      @secref["OCaml to Racket"]
                      "Quiz 1")
+
                @; Week 2
                (list "Week 2"
                      @day{02/04}
@@ -139,7 +139,7 @@
                      @secref["a86"]
                      @seclink["Assignment 1"]{A2})
 
-                  @; Week 3
+               @; Week 3
                (list "Week 3"
                      @day{02/11}
                      @itemlist[@item{@secref["Abscond"]}
