@@ -148,6 +148,15 @@
                      @day{02/13}
                      @secref["Blackmail"]
                      "Quiz 3")
+              @; Week 4
+               (list "Week 4"
+                     @day{02/18}
+                     @secref["Con"]
+                     @seclink["Assignment 3"]{A3})
+                  (list ""
+                     @day{02/20}
+                     @secref["Dupe"]
+                     "")
                )]
 @;{
 @tabular[#:style 'boxed
