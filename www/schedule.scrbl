@@ -157,6 +157,25 @@
                      @day{02/20}
                      @secref["Dupe"]
                      "")
+
+              @; Week 5
+               (list "Week 5"
+                     @day{02/25}
+                     @secref["Dodger"]
+                     "Quiz 4")
+                  (list ""
+                     @day{02/27}
+                     @secref["Evildoer"]
+                     "")
+            @; Week 6
+               (list "Week 6"
+                     @day{03/04}
+                     @secref["Extort"]
+                     "Quiz 5")
+                  (list ""
+                     @day{03/6}
+                     @secref["Fraud"]
+                     "")
                )]
 @;{
 @tabular[#:style 'boxed
