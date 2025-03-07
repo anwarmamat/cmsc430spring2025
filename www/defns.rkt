@@ -6,12 +6,13 @@
 (define prof1-pronouns "he/him")
 (define prof1-email "anwar@umd.edu")
 (define prof1-ohs (list (list "W 1:00-2:00pm" (link "https://umd.zoom.us/j/7932256846?omn=91816199279" "Zoom"))
-                  (list  "Th 4:00-5:00" "IRB 2248")))
+                        (list "Th 4:00-5:00" "IRB 2248")))
 (define prof1-initials "AM")
 
 (define prof2 (link "https://www.cs.umd.edu/people/milijana" "Milijana Surbatovich"))
 (define prof2-email "milijana@umd.edu")
 (define prof2-pronouns "she/her")
+(define prof2-ohs (list (list "F 10:00-11:00am" "IRB 5246")))
 (define prof2-initials "MS")
 
 

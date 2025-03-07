@@ -25,13 +25,13 @@
 
 @emph{Lecture}: @lecture-schedule1, @classroom1
 
-Office Hours: @itemize{
-    @(for/list ([i prof1-ohs]) (item (car i) ", " (cdr i)))
-    
-}
+Office Hours: @itemize{ @(for/list ([oh prof1-ohs]) (item (car oh) ", " (cadr oh))) }
+
 @emph{Professor}: @prof2
 
 @emph{Lecture}: @lecture-schedule2, @classroom2
+
+Office Hours: @itemize{ @(for/list ([oh prof2-ohs]) (item (car oh) ", " (cadr oh))) }
 
 CMSC 430 is an introduction to compilers.  Its major goal is to arm
 students with the ability to design, implement, and extend a
