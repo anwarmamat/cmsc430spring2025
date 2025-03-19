@@ -175,6 +175,20 @@
                   (list ""
                      @day{03/6}
                      @secref["Fraud"]
+                     "Practice Midterm 1")
+             @; Week 7
+               (list "Week 7"
+                     @day{03/11}
+                     @secref["Fraud"]
+                     "")
+                  (list ""
+                     @day{03/13}
+                     @secref["Midterm_1"]
+                     "")
+             @; Week 8
+               (list "Week 8"
+                     @day{03/17-03/21}
+                     "Spring Break"
                      "")
                )]
 @;{

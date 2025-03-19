@@ -12,9 +12,9 @@ its due date.
 
 @section{Practice}
 
-There is a practice midterm from Summer 2023 available on ELMS as
-@tt{m1-summer-2023.zip}.  You may submit to the Practice Midterm 1 -
-Summer 2023 assignment on Gradescope to get feedback on your solution.
+There is a practice midterm from Fall 2024 available on ELMS as
+@tt{PRACTICE-m1.zip}.  You may submit to the Practice Midterm 1 
+assignment on Gradescope to get feedback on your solution.
 However during the real midterm, you will not get this level of
 feedback from the autograder.
 
