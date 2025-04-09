@@ -36,7 +36,7 @@ not be changed by you}:
            @item{@tt{parse.rkt}}
 	   @item{@tt{interp.rkt}}
            @item{@tt{interp-prim.rkt}}
-           @item{@tt{compile-op.rkt}}	   
+           @item{@tt{compile-ops.rkt}}
 ]
 
 So you will only need to modify:
