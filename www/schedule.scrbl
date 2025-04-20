@@ -137,7 +137,7 @@
                (list ""
                      @day{02/06}
                      @secref["a86"]
-                     @seclink["Assignment 1"]{A2})
+                     @seclink["Assignment 2"]{A2})
 
                @; Week 3
                (list "Week 3"
@@ -184,11 +184,48 @@
                   (list ""
                      @day{03/13}
                      @secref["Midterm_1"]
-                     "")
+                     @seclink["Assignment 4"]{A4})
+                     
              @; Week 8
                (list "Week 8"
                      @day{03/17-03/21}
                      "Spring Break"
+                     "")
+            @; Week 9
+               (list "Week 9"
+                     @day{03/25}
+                     @secref["Hustle"]
+                     "Quiz 6")
+                  (list ""
+                     @day{03/27}
+                     @secref["Hustle"]
+                     "")
+            @; Week 10
+               (list "Week 10"
+                     @day{04/01}
+                     @secref["Hoax"]
+                     "")
+                  (list ""
+                     @day{04/03}
+                     @secref["Iniquity"]
+                     "")
+            @; Week 11
+               (list "Week 11"
+                     @day{04/08}
+                     @itemlist[@item{@secref["Knock"] "Mamat"} @item{@secref["Jig"] "Surbatovich"}]
+                     @seclink["Assignment 5"]{A5})
+                  (list ""
+                     @day{04/10}
+                     @secref["Knock"]
+                     "")
+            @; Week 12
+               (list "Week 12"
+                     @day{04/15}
+                     @itemlist[@item{@secref["Jig"] "Mamat"} @item{@secref["Knock"] "Surbatovich"}]
+                     "")
+                  (list ""
+                     @day{04/17}
+                      @secref["Midterm_2"]
                      "")
                )]
 @;{
