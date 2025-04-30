@@ -1,376 +1,396 @@
 #lang scribble/manual
-@(require (for-label (except-in racket compile ...) a86))
-@(require "defns.rkt")
-@(require "utils.rkt")
-@(require "notes/ev.rkt")
-@(require "notes/utils.rkt")
-@(require "fancyverb.rkt")
-@(require (for-label (except-in racket ...)))
-@(require racket/runtime-path)
+@(require "defns.rkt"
+          "notes/ev.rkt"
+          racket/runtime-path
+          (for-label (except-in racket compile ...) a86))
 
 @title[#:tag "Project" #:style '(unnumbered)]{Project}
 
-The final assessment for this course consists of an individually
-completed project.
+The final assessment for this course consists of an individually completed
+project that is split into two parts: implementing some extensions to functions
+(worth 40% of the final project grade) and implementing the new features of
+exceptions and exception handling (worth 60% of the final project grade).
+
+We will provide you with more detailed instructions and starter code for the
+function extension part, while purposefully having higher-level instructions and
+minimal starter code for the exception handling part. This decision is
+purposeful, to give @bold{you} the opportunity to exercise your compiler design
+chops and good judgment.
+
+The starter code is available on ELMS in the Final Project assignment text. Note
+that you do not need to bring forward features from past assignments.
+
+Please be sure to read the entire problem description before starting. We've
+included a number of @secref[#:tag-prefixes '("proj-") "suggestions"] on how to
+approach the assignment near the end.
 
 @bold{Due: @final-date, @final-end-time}
 
-@section[#:style 'unnumbered]{Arity Checking, Rest Arguments, Case Functions, and Apply}
 
-@(define-runtime-path iniquity-plus "iniquity-plus/")
+@section[#:tag-prefix "proj-" #:style 'unnumbered #:tag "exceptions"]{Exceptions and Exception Handling}
 
-@(ev `(current-directory ,iniquity-plus))
-@(for-each (λ (f) (ev `(require (file ,f))))
-	   '("ast.rkt" "parse.rkt" "interp.rkt"))
+Exceptions and exception handling mechanisms are widely used in modern
+programming languages. Implement Racket’s @racket[raise] and
+@racket[with-handlers] forms to add exception handling.
 
-
-
-The goal of this assignment is to extend a compiler with arity
-checking for function calls, to add new kinds of function parameter
-features, and to add the @racket[apply] form for applying a function
-to a list of arguments.
-
-You are given a file @tt{iniquity-plus.zip} on ELMS with a starter
-compiler similar to the @seclink["Iniquity"]{Iniquity} language we
-studied in class.  You are tasked with:
+Here are the key features that need to be added:
 
 @itemlist[
 
-@item{implementing run-time arity checking for function calls,}
+ @item{@racket[(raise _e)] will evaluate @racket[_e] and then ``raise'' the
+ value, side-stepping the usual flow of control and instead jumping to the most
+ recently installed compatible exception handler.}
 
-@item{extending function definitions to include ``rest argument''
-parameters for writing variable-arity functions,}
+ @item{@racket[(with-handlers ([_p1 _f1] ...) _e)] will install a new exception
+  handler during the evaluation of @racket[_e]. If @racket[_e] raises an
+  exception that is not caught, the predicates @racket[_p1 ...] should be
+  applied to the raised value until finding the first @racket[_pi] that returns
+  a true value, at which point the corresponding function @racket[_fi] is called
+  with the raised value and the result of that application is the result of the
+  entire with-handlers expression. If @racket[_e] does not raise an error, its
+  value becomes the value of the with-handler expression.}
 
-@item{extending function definitions to include
-@racket[case-lambda]-style multiple-arity functions,}
+ ]
 
-@item{extending the arity checking features to handle these new forms
-of function definitions, and}
+Here are some examples to help illustrate:
 
-@item{implementing the @racket[apply] mechanism for applying a function
-to the elements of a list as arguments.}
-]
+@ex[
+(with-handlers ([string? (λ (s) (cons "got" s))])
+  (raise "a string!"))
 
-Unlike previous assignments, you do not need to bring forward your
-past features to this language; there is no need to implement
-@racket[cond], @racket[case], etc.
+(with-handlers ([string? (λ (s) (cons "got" s))]
+                [number? (λ (n) (+ n n))])
+  (raise 10))
 
-Be sure to read the entire problem description before starting.  There
-are a number of @secref[#:tag-prefixes '("proj-")]{Suggestions} on how to
-approach the assignment near the end.
+(with-handlers ([string? (λ (s) (cons "got" s))]
+                [number? (λ (n) (+ n n))])
+  (+ (raise 10) 30))
+
+(let ((f (λ (x) (raise 10))))
+  (with-handlers ([string? (λ (s) (cons "got" s))]
+                  [number? (λ (n) (+ n n))])
+    (+ (f 10) 30)))
+
+(with-handlers ([string? (λ (s) (cons "got" s))]
+                [number? (λ (n) (+ n n))])
+  'nothing-bad-happens)
+
+(with-handlers ([symbol? (λ (s) (cons 'reraised s))])
+  (with-handlers ([string? (λ (s) (cons "got" s))]
+                  [number? (λ (n) (+ n n))])
+    (raise 'not-handled-by-inner-handler)))
+ ]
+
+Notice that when a value is raised, the enclosing context is discarded. In the
+third example, the surrounding @racket[(+ [] 30)] part is ignored and instead
+the raised value, @racket[10], is given the exception handler predicates,
+selecting the appropriate handler.
+
+Thinking about the implementation, what this means is that a portion of the
+stack needs to be discarded --- namely, the area between the current top of the
+stack and the stack that was in place when the @racket[with-handlers] expression
+was evaluated.
+
+This suggests that a @racket[with-handlers] expression should stash away the
+current value of @racket['rsp]. When a @racket[raise] happens, it grabs the
+stashed away value and installs it as the current value of @racket['rsp],
+effectively rolling back the stack to its state at the point at which the
+exception handler was installed. It should then jump to code that will carry out
+the applying of the predicates and right-hand-side functions.
+
+Since @racket[with-handlers] can be nested, you will need to maintain an
+arbitrarily large collection of exception handlers, each of which has a pointer
+into the stack and a label for the code to handle the exception. This collection
+should operate like a stack: each @racket[with-handlers] expression adds a new
+handler to the handler stack. If the body expression returns normally, the
+top-most handler should be removed. When a @racket[raise] happens, the top-most
+handler is popped and used.
 
 
-@section[#:tag-prefix "proj-" #:style 'unnumbered #:tag "arity"]{Checking arity}
+@section[#:style 'unnumbered]{Arity Checking, Rest Arguments, and Apply}
 
-In @seclink["Iniquity"]{Iniquity}, we implemented a language with
-function definitions and calls.  We noted that bad things can happen
-when a function is called with the incorrect number of arguments.
-While it's possible to statically check this property of Iniquity
-programs, it's not possible in more expressive languages and arity
-checking must be done at run-time.  You are tasked with implementing
-such a run-time arity checking mechanism.
+@(define-runtime-path loot-plus "loot-plus/")
 
-Here is the basic idea.  You need to add a run-time checking mechanism
-that will cause the following program to signal an error:
+@(ev `(current-directory ,loot-plus))
+@(for-each (λ (f) (ev `(require (file ,f))))
+           '("ast.rkt" "parse.rkt" "interp.rkt"))
+
+This part of the project asks you to extend a modified Loot compiler with the
+following features:
+
+@itemlist[
+
+ @item{Run-time arity checking for function calls (i.e., raising a error when a
+  function is called with an incompatible number of arguments).}
+
+ @item{Variadic (variable-arity) functions using a ``rest parameter''.}
+
+ @item{The @racket[apply] function, which allows for applying a function to a
+  dynamically computed list of arguments.}
+
+ ]
+
+
+@subsection[#:tag-prefix "proj-" #:style 'unnumbered #:tag "arity"]{Checking arity}
+
+In @seclink["Iniquity"]{Iniquity}, we implemented a language with function
+definitions and calls. We noted that bad things can happen when a function is
+called with the incorrect number of arguments. While it's possible to statically
+check this property of Iniquity programs, it's not possible in more expressive
+languages, so arity checking must be done at run-time. You are tasked with
+implementing such a run-time arity checking mechanism.
+
+Here is the basic idea: You need to add a run-time checking mechanism that will
+cause the following program to signal an error:
 
 @#reader scribble/comment-reader
 (racketblock
 (define (f x y) (+ x y))
-(f 1)
-)
+(f 1))
 
-The function call knows how many arguments are given and the function
-definition knows how many argument are expected.  The generated code
-should check that these two quantities match when the function is called.
+The function call knows how many arguments are given, and the function
+definition knows how many arguments are expected. The generated code should
+check that these two quantities match when the function call is executed.
 
-A simple way to do this is to pick a designated register that will be
-used for communicating arity information.  The caller should set the
-register to the number of arguments before jumping to the function.
-The function should check this number against the expected number and
-signal an error when they don't match.
+A simple way to do this is to pick a designated register that will be used for
+communicating arity information. The caller should set the register to the
+number of arguments before jumping to the function. The function should check
+this number against the expected number and signal an error when they don't
+match.
+
+Since we're using @seclink["Loot"]{Loot} for this project, there are two places
+to update the caller code: @racket[compile-app-tail] and
+@racket[compile-app-nontail]. These two functions are responsible for generating
+the jumps into a function body, so these are where we will update our designated
+arity checking register with the number of arguments received at run-time.
+
+The function body definition will also need to be updated. In Loot, this will be
+done in @racket[compile-lambda-define].
+
+No changes need to be made to the parser, and the interpreter has been updated
+to perform arity checking; you only need to make changes in the compiler. We
+have left @tt{TODO} comments for you in the places where you need to make
+changes. (You are allowed to make other changes if you see fit.)
 
 
-You should modify @racket[compile-app] and @racket[compile-fun] to
-implement this part of the assignment.
+@subsection[#:tag-prefix "proj-" #:style 'unnumbered #:tag "rest"]{Variadic functions}
 
-@section[#:tag-prefix "proj-" #:style 'unnumbered #:tag "rest"]{Rest
-arguments}
-
-Many languages including JavaScript, C, and Racket provide facilities
-for defining functions that take a ``rest argument'' which allows the
-function to be called with more arguments than expected and these
-additional arguments will be bound to a single value that collects all
-of these arguments.  In Iniquity, as in Racket, the obvious way of
-collecting these arguments into a single value is to use a list.
+Many programming languages, such as JavaScript, C, and Racket, provide
+facilities for defining functions that take a variable number of arguments, also
+called ``variadic functions''. Most commonly, this is implemented by somehow
+distinguishing the final parameter in the function's parameter list. When the
+function is called, the normal parameters are bound in the normal way, but all
+the additional arguments beyond those necessary for binding the normal
+parameters are bound to the distinguished parameter as some kind of collection
+that can be used as a single value within the body of the function. We will
+follow Racket's example and use a list to accumulate these values.
 
 Here are some examples:
 
 @itemlist[
 
-@item{@racket[(define (f . xs) ...)]: this function takes @emph{any} number
-of arguments and binds @racket[xs] to a list containing all of them,}
+ @item{The function @racket[(define (f . xs) ...)] takes @emph{any} number of
+  arguments and binds @racket[xs] toa list containing all of them.}
 
-@item{@racket[(define (f x . xs) ...)]: this function takes @emph{at
-least} one argument and binds @racket[x] to the first argument and
-@racket[xs] to a list containing the rest.  It's an error to call this function
-with zero arguments.}
+ @item{The function @racket[(define (f x . xs) ...)] takes @emph{at least} one
+  argument, binding @racket[x] to the first argument and @racket[xs] to a list
+  containing the rest. It's an error to call this function with zero arguments.}
 
-@item{@racket[(define (f x y z . xs) ...)]: this function takes
-@emph{at least} three arguments and binds @racket[x], @racket[y], and
-@racket[z] to the first three arguments and @racket[xs] to a list
-containing the rest.  It's an error to call this function with 0, 1,
-or 2 arguments.}
-]
+ @item{The function @racket[(define (f x y z . xs) ...)] takes @emph{at least}
+  three arguments, binding @racket[x], @racket[y], and @racket[z] to the first
+  three arguments and @racket[xs] to a list containing the rest. It's an error
+  to call this function with 0, 1, or 2 arguments.}
 
-Here are some examples in Racket to get a sense of the behavior:
+ ]
+
+Here are some examples using these function templates in Racket to get a sense
+of the behavior:
 
 @ex[
-(define (f . xs) (list xs))
-(f)
-(f 1)
-(f 1 2)
-(f 1 2 3)
-(f 1 2 3 4)
-(define (f x . xs) (list x xs))
-(eval:error (f))
-(f 1)
-(f 1 2)
-(f 1 2 3)
-(f 1 2 3 4)
-(define (f x y z . xs) (list x y z xs))
-(eval:error (f))
-(eval:error (f 1))
-(eval:error (f 1 2))
-(f 1 2 3)
-(f 1 2 4)
-]
+ (define (f . xs) (list xs))
+ (f)
+ (f 1)
+ (f 1 2)
+ (f 1 2 3)
+ (f 1 2 3 4)
+ (define (f x . xs) (list x xs))
+ (eval:error (f))
+ (f 1)
+ (f 1 2)
+ (f 1 2 3)
+ (f 1 2 3 4)
+ (define (f x y z . xs) (list x y z xs))
+ (eval:error (f))
+ (eval:error (f 1))
+ (eval:error (f 1 2))
+ (f 1 2 3)
+ (f 1 2 4)
+ ]
 
-The code generated for a function call should not change---other than
-what you did for @secref[#:tag-prefixes '("proj-") "arity"]: it should
-pass all of the arguments on the stack along with information about
-the number of arguments.
+The code generated for a function @emph{call} should not change, aside from what
+you did for @secref[#:tag-prefixes '("proj-") "arity"]: it should pass all of
+the arguments on the stack along with information about the number of arguments.
 
-The compilation of function definitions that use a rest argument
-should generate code that checks that the given number of arguments is
-acceptable and should generate code to pop all ``extra'' arguments off
-the stack and construct a list which is then bound to the rest
-parameter.
+The compilation of function @emph{definitions} for variadic functions should
+generate code that checks that the given number of arguments is acceptable and
+should generate code to pop all ``extra'' arguments off the stack and construct
+a @emph{list} from them, binding that list to the rest parameter.
 
-It is worth remembering that arguments are pushed on the stack in such
-a way that the last argument is the element most recently pushed on
-the stack.  This has the benefit of making it easy to pop off the
-extra arguments and to construct a list with the elements in the
+It is worth remembering that arguments are pushed on the stack in such a way
+that the @emph{last} argument is the element most recently pushed onto the stack
+(i.e., it's ``on top'' of the stack). This has the benefit of making it easy to
+pop off the extra arguments and to construct a list with the elements in the
 proper order.
 
-HINT: the function definition knows the number of ``required''
-arguments, i.e. the minimum number of arguments the function can be
-called with---call this @math{m}---and the caller communicates how
-many actual arguments have been supplied---call this @math{n}.  The
-compiler needs to generate a loop that pops @math{n-m} times,
-constructing a list with with popped elements, and then finally pushes
-this list in order to bind it to the rest parameter.
+@bold{HINT:} The function definition knows the number of ``required'' arguments,
+i.e., the minimum number of arguments the function can be called with --- call
+this @math{m} --- and the caller communicates how many arguments have actually
+been supplied --- call this @math{n}. The compiler needs to generate a loop that
+pops @math{n - m} times, constructing a list with the popped elements, and then
+finally pushes the resulting list onto the stack to bind it to the rest
+parameter.
 
-@section[#:tag-prefix "proj-" #:style 'unnumbered #:tag "case-lambda"]{Arity dispatch}
+The parser and interpreter have been updated with these changes; you only need
+to implement the changes in the compiler. We have left @tt{TODO} comments for
+you in the places where you need to make changes. (You are allowed to make other
+changes if you see fit.)
 
-Some languages such as Java, Haskell, and Racket make it possible to
-overload a single function name with multiple definitions where the
-dispatch between these different definitions is performed based on the
-number (or kind) of arguments given at a function call.
 
-In Racket, this is accomplished with the @racket[case-lambda] form for
-constructing multiple-arity functions.
+@subsection[#:tag-prefix "proj-" #:style 'unnumbered #:tag "apply"]{Apply}
 
-Here is an example:
-
-@ex[
-(define f
-  (case-lambda
-    [(x) "got one!"]
-    [(p q) "got two!"]))
-
-(f #t)
-(f #t #f)
-(eval:error (f #t #f 0))
-]
-
-This function can accept @emph{either} one or two arguments.  If given
-one argument, it evaluates the right-hand-side of the first clause
-with @racket[x] bound to that argument.  If given two arguments, it
-evaluates the right-hand-side of the second clause with @racket[p] and
-@racket[q] bound to the arguments.  If given any other number of
-arguments, it signals an error.
-
-A @racket[case-lambda] form can have any number of clauses (including
-zero!) and the first clause for which the number of arguments is
-acceptable is taken when the function is called.
-
-Note that @racket[case-lambda] can be combined with rest arguments too.
-A clause that accepts any number of arguments is written by simply
-listing a parameter name (no parentheses).  A clause that accepts some
-non-zero minimum number of parameters is written with a dotted
-parameter list.
-
-For example:
+Dynamic function application is the yin to the yang of variadic functions (or
+maybe it's the other way around). Whereas a rest parameter lets a function take
+arbitrarily many ``extra'' arguments and packages them as a list, @racket[apply]
+will apply a function @emph{to} a list as though the elements of the list were
+given as arguments normally.
 
 @ex[
-(define f
-  (case-lambda
-    [(x y z . r) (length r)]
-    [(x) "just one!"]))
+ (define (f x y) (+ x y))
+ (apply f (list 1 2))
+ (define (flatten ls)
+   (apply append ls))
+ (flatten (list (list 1 2) (list 3 4 5) (list 6)))
+ (define (sum ls)
+   (apply + ls))
+ (sum (list 5 6 7 8))
+ ]
 
-(f 1 2 3 4 5 6)
-(f #t)
-(eval:error (f))
-(eval:error (f 1 2))]
+In these examples, you can see @racket[apply] taking two things: a function, and
+a single argument, which is a list. The @racket[apply] function is calling the
+given function, using the elements in the list as the arguments.
 
-This function takes three or more arguments @emph{or} one argument.  Any
-other number of arguments (i.e. zero or two) results in an error.
-
-@ex[
-(define f
-  (case-lambda
-    [(x y z) "three!"]
-    [xs (length xs)]))
-
-(f)
-(f 1 2)
-(f 1 2 3)
-(f 1 2 3 4 5 6)
-]
-
-This function takes any number of arguments, but when given three, it
-produces @racket["three!"]; in all other cases it produces the number
-of arguments.
-
-@section[#:tag-prefix "proj-" #:style 'unnumbered #:tag "apply"]{Apply}
-
-Apply is the yin to the yang of rest arguments (or maybe the other way
-around).  Whereas a rest argument lets a function take arbitrarily
-more arguments and packages them up as a list, @racket[apply] will
-apply a function to a list as though the elements of the list were
-given as arguments.
+As it turns out, @racket[apply] can also take additional arguments in addition
+to the list, and it passes them along to the function being called as well:
 
 @ex[
-(define (f x y) (+ x y))
-(apply f (list 1 2))
-(define (flatten ls)
-  (apply append ls))
-(flatten (list (list 1 2) (list 3 4 5) (list 6)))
-(define (sum ls)
-  (apply + ls))
-(sum (list 5 6 7 8))
-]
-
-Here you can see @racket[apply] taking two things: a function and
-single argument which is a list.  It is calling the function with the
-elements of the list as the arguments.
-
-It turns out, @racket[apply] can also take other arguments in addition
-to the list and pass them along to the function.
-
-@ex[
-(define (f x y) (+ x y))
-(apply f 1 (list 2))
-(apply list 1 2 3 4 (list 5 6 7))
-]
+ (define (f x y) (+ x y))
+ (apply f 1 (list 2))
+ (apply list 1 2 3 4 (list 5 6 7))
+ ]
 
 Note that if the function expects a certain number of arguments and the list has
 a different number of elements, it results in an arity error:
 
 @ex[
-(define (f x y) (+ x y))
-(eval:error (apply f (list 1 2 3)))
-]
+ (define (f x y) (+ x y))
+ (eval:error (apply f (list 1 2 3)))
+ ]
 
-A new form of expression has been added to the @tt{Expr} AST type:
-
-@#reader scribble/comment-reader
-(racketblock
-;; type Expr = ...
-;;           | (Apply Id [Listof Expr] Expr)
-)
-
-The parser has been updated to handle concrete syntax of the form:
+The concrete syntax for an @racket[apply] expression is:
 
 @#reader scribble/comment-reader
 (racketblock
-(apply _f _e0 ... _en)
+(apply _ef _e0 ... _en)
 )
 
-@ex[
-(parse-e '(apply f x y zs))
-]
+Note that an @racket[apply] expression consists of two or more sub-expressions.
+The first sub-expression @racket[_ef] must evaluate to a function, and the final
+sub-expression @racket[_en] must evaluate to a list (it is an error if it
+evaluates to anything other than a list). Any additional sub-expressions
+@racket[_e0 ...] can evaluate to anything at all.
 
-Note that the AST for an @racket[apply] expression has the function
-name, an arbitrarily long list of arguments, plus a distinguished last
-argument that should produce a list.  (It is an error if this expression
-produces anything other than a list.)
-
-While it's allowable to have only the function and the list argument,
-it's a syntax error to leave off a list argument altogether:
+While it's allowable to have only the function and the list argument, it's a
+syntax error to leave off a list argument altogether:
 
 @ex[
-(parse-e '(apply f xs))
-(eval:error (parse-e '(apply f)))
-]
+ (parse-e '(apply f xs))
+ (parse-e '(apply f))
+ ]
 
-The interpreter also handles @racket[apply] expressions:
+(Note that the second example above returns an @racket[App] AST node rather than
+an @racket[Apply] node, meaning that unless the user has defined a function that
+is named @tt{apply}, this code will fail at compile-time due to generating a
+reference to an undeclared label. It does not literally raise an error in
+Racket, although it would in a more advanced parser.)
+
+The interpreter has been updated to handle all of this already:
 
 @ex[
-(interp (parse '[ (define (f x y) (cons y x))
-                  (apply f (cons 1 (cons 2 '()))) ]))
-]
+ (interp (parse '(define (f x y) (cons y x))
+                '(apply f (cons 1 (cons 2 '())))))
+ ]
 
-Together with rest arguments, @racket[apply] makes it possible to
-write many functions you may like to use:
+When used with variadic functions, @racket[apply] makes it possible to write
+many functions you may like to use:
 
 @#reader scribble/comment-reader
 (ex
 (interp
   (parse
-    '[;; an append that works on any number of lists
-      (define (append . xss)
-        (if (empty? xss)
-            '()
-            (if (empty? (car xss))
-                (apply append (cdr xss))
-                (cons (car (car xss))
-                      (apply append (cdr (car xss)) (cdr xss))))))
-       ;; the list function!
-       (define (list . xs) xs)
+    ;; an append that works on any number of lists
+    '(define (append . xss)
+       (if (empty? xss)
+           '()
+           (if (empty? (car xss))
+               (apply append (cdr xss))
+               (cons (car (car xss))
+                     (apply append (cdr (car xss)) (cdr xss))))))
+    ;; the list function!
+    '(define (list . xs) xs)
 
-       (append (list 1 2 3) (list 4) (list 5 6 7))])))
+    '(append (list 1 2 3) (list 4) (list 5 6 7)))))
 
-In @tt{compile.rkt}, the @racket[compile-e] has an added case for
-@racket[Apply] AST nodes and calls @racket[compile-apply], which is
-stubbed out for you.  You will need to implement @racket[apply] there.
+In @tt{compile.rkt}, the @racket[compile-e] function now has an added case for
+@racket[Apply] AST nodes that calls @racket[compile-apply]. Your job is to
+complete the implementation of @racket[compile-apply] in accordance with the
+above specification.
 
-Here is the idea for @racket[apply]: it is doing something similar to
-a function call, so it needs to make a label for the return point and
-push that on the stack. It then needs to execute all of the given
-arguments, pushing them on the stack (again just like a regular
-function call).  Then it needs to execute the distinguished list
-argument and generate code that will traverse the list at run-time,
-pushing elements on to the stack until reaching the end of the list.
-At this point, all of the arguments, both those given explicitly and
-those in the list are on the stack.  Jump to the function.
+@bold{HINT:} The @racket[apply] function is @emph{very} similar to a normal
+function call, but with some changes. The implementation should:
+
+@itemlist[
+
+ @item{Generate a label for the return point and push that onto the stack.}
+
+ @item{Evaluate the first argument @racket[_ef] and check that it evaluates to a
+  procedure.}
+
+ @item{Evaluate the regular arguments @racket[_e0 ...] and push them onto the
+ stack.}
+
+ @item{Evaluate the list argument @racket[_en], and then traverse the list at
+ run-time, pushing the elements onto the stack until the end of the list is
+ reached.}
+
+ @item{Execute the function in the first argument.}
+
+]
 
 
-@section[#:tag-prefix "proj-" #:style 'unnumbered]{Representing the
-syntax of function definitions}
+@section[#:tag-prefix "proj-" #:style 'unnumbered #:tag "starter-code"]{Starter code changes}
 
-The @seclink["Iniquity"]{Iniquity} language has a single function
-definition form: @racket[(define (_f _x ...) _e)] which is represented
-with the following AST type:
+@emph{We have updated the base Loot AST and parser for you.} Some of these
+changes might be challenging to understand at first glance, so here is a brief
+summary of those changes with some rationale.
 
-@#reader scribble/comment-reader
-(racketblock
-;; type Defn = (Defn Id (Listof Id) Expr)
-(struct Defn (f xs e) #:prefab)
-)
+@bold{Arity checking} does not require any changes in the AST or parser --- it's
+entirely implemented in the interpreter and compiler.
 
-Because there are three different forms of function definition in
-Iniquity+, we use the following AST representation:
+@bold{Variadic functions} require a new function form that uses the special dot
+notation to distinguish the ``rest parameter'' from the others. To handle this,
+and to make distinguishing the different functions easier, we now have
+@emph{two} top-level function definition forms and @emph{two} lambda forms in
+the AST:
 
 @#reader scribble/comment-reader
 (racketblock
@@ -379,129 +399,139 @@ Iniquity+, we use the following AST representation:
 
 ;; type Fun = (FunPlain [Listof Id] Expr)
 ;;          | (FunRest [Listof Id] Id Expr)
-;;          | (FunCase [Listof FunCaseClause])
-;; type FunCaseClause = (FunPlain [Listof Id] Expr)
-;;                    | (FunRest [Listof Id] Id Expr)
 (struct FunPlain (xs e)   #:prefab)
 (struct FunRest  (xs x e) #:prefab)
-(struct FunCase  (cs)     #:prefab)
+
+;; type Expr = ...
+;;           | (LamPlain Id (Listof Id) Expr)
+;;           | (LamRest Id (Listof Id) Id Expr)
+...
+(struct LamPlain (f xs e) #:prefab)
+(struct LamRest (f xs x e) #:prefab)
 )
 
-What used to be represented as @racket[(Defn _f _xs _e)] is now
-represented as @racket[(Defn _f (FunPlain _xs _e))].
+What used to be represented as @racket[(Defn _f _xs _e)] is now represented as
+@racket[(Defn _f (FunPlain _xs _e))]. Similarly, what used to be represented as
+@racket[(Lam _f _xs _e)] is now represented as @racket[(LamPlain _f _xs _e)].
 
-
-The parser already works for these new forms of function definitions.
-Here are some examples of how function definitions are parsed, but you
-are encouraged to try out more to get a better sense:
+The parser has been updated to handle these forms:
 
 @ex[
-(parse-define '(define (f x) x))
-(parse-define '(define (f . xs) xs))
-(parse-define '(define (f x y z . q) q))
-(parse-define
-  '(define f
-     (case-lambda
-       [(x y) 2]
-       [(z) 1]
-       [(a b c . d) "3+"]
-       [q "other"])))
-]
+ (parse-define '(define (f x) x))
+ (parse-define '(define (f . xs) xs))
+ (parse-define '(define (f x y z . xs) xs))
+ (parse-e '(λ (x) x))
+ (parse-e '(λ xs xs))
+ (parse-e '(λ (x y z . xs) xs))
+ ]
 
-@section[#:tag-prefix "proj-" #:style 'unnumbered]{Starter code}
+@bold{Apply} requires a new corresponding AST node and an extension to the
+parser. The new AST node has the following definition:
 
-The compiler code given to you is just an implementation of Iniquity,
-but updated to parse the new forms of function definitions and
-re-organized slightly to match the new AST representation.
+@#reader scribble/comment-reader
+(racketblock
+;; type Expr = ...
+;;           | (Apply Expr (Listof Expr) Expr)
+...
+(struct Apply (ef es e) #:prefab)
+)
 
-The interpreter code given to you works on the full Iniquity+
-language, so you do not need to update @racket[interp.rkt] and can use
-the interpreter to guide your implementation of the compiler.
+The parser has been updated to handle concrete syntax of the form:
+
+@#reader scribble/comment-reader
+(racketblock
+(apply _ef _e0 ... _en)
+)
+
+For example:
 
 @ex[
-(interp
-  (parse '[(define (f x) x)
-           (f 1)]))
-(interp
-  (parse '[(define (f . x) x)
-           (f 1)]))
-(interp
-  (parse '[(define (f . x) x)
-           (f)]))
-(interp
-  (parse '[(define (f . x) x)
-           (f 1 2 3 4 5)]))
-(interp
-  (parse '[(define f
-             (case-lambda
-               [(x y) 2]
-               [(z) 1]
-               [(a b c . d) "3+"]
-               [q "other"]))
-	    (cons (f 7)
-	          (cons (f 3 4)
-		        (cons (f)
-			      (cons (f 7 8 9 10 11)
-			            '()))))]))
-]
+ (parse-e '(apply f x y zs))
+ (parse-e '(apply f '()))
+ (parse-e '(apply f 1 (cons 2 '())))
+ ]
+
+@bold{Exceptions and exception handling} also requires new AST nodes and an
+extension to the parser. The new AST nodes have the following definitions:
+
+@#reader scribble/comment-reader
+(racketblock
+;; type Expr = ...
+;;           | (Raise Expr)
+;;           | (WithHandlers (Listof Expr) (Listof Expr) Expr)
+...
+(struct Raise (e) #:prefab)
+(struct WithHandlers (ps hs e) #:prefab)
+)
+
+The parser has been updated to handle concrete syntax of the form:
+
+@#reader scribble/comment-reader
+(racketblock
+(raise _e)
+)
+
+as well as:
+
+@#reader scribble/comment-reader
+(racketblock
+(with-handlers ([_p _h] ...) _e)
+)
+
+For example:
+
+@ex[
+ (parse-e '(raise 42))
+ (parse-e '(with-handlers () #t))
+ (parse-e '(with-handlers ([(λ (x) (= x 42)) (λ (x) (+ x 17))]) (raise 42)))
+ ]
 
 
-Thus, you should only need to modify @racket[compile.rkt].
+@section[#:tag-prefix "proj-" #:style 'unnumbered #:tag "suggestions"]{Suggestions}
 
-A small number of test cases are given as usual.
-
-
-@section[#:tag-prefix "proj-" #:style 'unnumbered]{Suggestions}
-
-This is a tricky project.  The amount of code you have to write is
-pretty small, however you may spend a long time slogging through the
-project if your approach is to hack first, think later.
-
-Here are some suggestions for how to approach the project.  Make
-sure you get each of the pieces working before moving on.
+This is a tricky project. The amount of code you have to write is relatively
+small, but you may spend a long time slogging through the project if your
+approach is to hack first and think later. Here are some suggestions for how to
+approach the project. We recommend making sure you get each of the pieces
+working before moving on.
 
 @itemlist[
 
-@item{Start with @secref[#:tag-prefixes '("proj-") "arity"]; this should
-be pretty easy.  Make sure it works for plain function definitions.}
+ @item{Start with @secref[#:tag-prefixes '("proj-") "arity"]; this should be
+  the easiest part. Make sure to get it working for plain function definitions.}
 
-@item{Move on to @secref[#:tag-prefixes '("proj-") "rest"].  You could
-start by emitting code that checks that the arguments are acceptable,
-popping the appropriate number of arguments off (and ignoring the
-elements), then pushing the empty list.  This will work like a rest arg
-in that it should accept any number of arguments beyond the required
-minimum, but the rest argument will always be bound to empty.  Once
-working, try to modify the code to build a list as it pops arguments.
-Test that it works.}
+ @item{Move on to @secref[#:tag-prefixes '("proj-") "rest"]. You could start by
+  emitting code that checks that the number of required arguments is acceptable.
+  Then, iterate over the remaining arguments, popping the appropriate number off
+  and ignoring their values, and then pushing the empty list as a temporary
+  solution to bind to the rest parameter. This will work like a proper variadic
+  function in that it should accept any number of arguments beyond the required
+  minimum, but the rest parameter itself will always be bound to the empty list.
+  Once this is working, modify the code to build a list as you pop the extra
+  arguments and bind this list to the rest parameter instead. Test that it
+  works.}
 
-@item{Next you could either tackle @racket[apply] or
-@racket[case-lambda].}
+ @item{For @secref[#:tag-prefixes '("proj-") "apply"], at first don't worry
+  about arity checking. Instead, consider the case where there are no explicit
+  arguments given, i.e., focus first on @racket[(apply _ef _en)]. Once you have
+  that working, consider the more general case of @racket[(apply _ef _e0 ...
+  _en)]. Then figure out how to add in the arity checking part. Finally, make
+  sure you're detecting error cases such as when @racket[_ef] is not a procedure
+  and @racket[_en] is not a proper list.}
 
-@item{For @secref[#:tag-prefixes '("proj-")
-"case-lambda"], remember that you have a compiler for plain and rest
-argument functions at this point.  That should come in handy.  Think
-of @racket[case-lambda] as generating a set of function definitions
-(with generated names), and then the main work of @racket[case-lambda]
-is determing which of the generated functions to call, given the
-specific number of arguments passed in by the caller.  When you find
-the function that fits, jump to it.  You might start by only handling
-plain function clauses in @racket[case-lambda] before moving on to
-handling rest argument functions, too.}
+ @item{After getting the rest working, implement @secref[#:tag-prefixes
+ '("proj-") "exceptions"]. A good idea might be to open the Racket REPL and work
+ through some examples of @racket[raise] and @racket[with-handlers] to make sure
+ you really understand the semantics of what you're implementing. Implement the
+ compiler, but try to take logical, discrete steps in the implementation process
+ (e.g., make it work for exactly one exception handler first, then generalize to
+ arbitrarily many, and so on).}
 
-@item{For @secref[#:tag-prefixes '("proj-") "apply"], at first don't
-worry about arity checking and consider the case where there are no
-explicit arguments given, i.e. focus on @racket[(apply _f _e)].  Once
-you have that working, consider the more general case of
-@racket[(apply _f _e0 ... _e)].  Then figure out how to add in the
-arity checking part.  Finally, make sure you're detecting error cases
-such as when @racket[_e] is not a proper list.}
+ ]
 
-]
 
 @section[#:tag-prefix "proj-" #:style 'unnumbered]{Submitting}
 
-Submit a zip file containing your work to Gradescope.  Use @tt{make
-submit.zip} from within the @tt{iniquity-plus} directory to create a zip
-file with the proper structure.
-
-
+Submit a @tt{.zip} file containing your work to Gradescope. Use @tt{make
+submit.zip} from within the @tt{loot-plus} directory to create a zip file with
+the proper structure.
