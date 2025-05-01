@@ -17,94 +17,17 @@ minimal starter code for the exception handling part. This decision is
 purposeful, to give @bold{you} the opportunity to exercise your compiler design
 chops and good judgment.
 
-The starter code is available on ELMS in the Final Project assignment text. Note
-that you do not need to bring forward features from past assignments.
+The starter code, which is based on Loot, is available on ELMS in the Final
+Project assignment text. Note that you do not need to bring forward features
+from past assignments, and in most cases we have already provided the necessary
+AST and parser code with a matching interpreter so you can focus on implementing
+the compiler.
 
 Please be sure to read the entire problem description before starting. We've
 included a number of @secref[#:tag-prefixes '("proj-") "suggestions"] on how to
 approach the assignment near the end.
 
 @bold{Due: @final-date, @final-end-time}
-
-
-@section[#:tag-prefix "proj-" #:style 'unnumbered #:tag "exceptions"]{Exceptions and Exception Handling}
-
-Exceptions and exception handling mechanisms are widely used in modern
-programming languages. Implement Racket’s @racket[raise] and
-@racket[with-handlers] forms to add exception handling.
-
-Here are the key features that need to be added:
-
-@itemlist[
-
- @item{@racket[(raise _e)] will evaluate @racket[_e] and then ``raise'' the
- value, side-stepping the usual flow of control and instead jumping to the most
- recently installed compatible exception handler.}
-
- @item{@racket[(with-handlers ([_p1 _f1] ...) _e)] will install a new exception
-  handler during the evaluation of @racket[_e]. If @racket[_e] raises an
-  exception that is not caught, the predicates @racket[_p1 ...] should be
-  applied to the raised value until finding the first @racket[_pi] that returns
-  a true value, at which point the corresponding function @racket[_fi] is called
-  with the raised value and the result of that application is the result of the
-  entire with-handlers expression. If @racket[_e] does not raise an error, its
-  value becomes the value of the with-handler expression.}
-
- ]
-
-Here are some examples to help illustrate:
-
-@ex[
-(with-handlers ([string? (λ (s) (cons "got" s))])
-  (raise "a string!"))
-
-(with-handlers ([string? (λ (s) (cons "got" s))]
-                [number? (λ (n) (+ n n))])
-  (raise 10))
-
-(with-handlers ([string? (λ (s) (cons "got" s))]
-                [number? (λ (n) (+ n n))])
-  (+ (raise 10) 30))
-
-(let ((f (λ (x) (raise 10))))
-  (with-handlers ([string? (λ (s) (cons "got" s))]
-                  [number? (λ (n) (+ n n))])
-    (+ (f 10) 30)))
-
-(with-handlers ([string? (λ (s) (cons "got" s))]
-                [number? (λ (n) (+ n n))])
-  'nothing-bad-happens)
-
-(with-handlers ([symbol? (λ (s) (cons 'reraised s))])
-  (with-handlers ([string? (λ (s) (cons "got" s))]
-                  [number? (λ (n) (+ n n))])
-    (raise 'not-handled-by-inner-handler)))
- ]
-
-Notice that when a value is raised, the enclosing context is discarded. In the
-third example, the surrounding @racket[(+ [] 30)] part is ignored and instead
-the raised value, @racket[10], is given the exception handler predicates,
-selecting the appropriate handler.
-
-Thinking about the implementation, what this means is that a portion of the
-stack needs to be discarded --- namely, the area between the current top of the
-stack and the stack that was in place when the @racket[with-handlers] expression
-was evaluated.
-
-This suggests that a @racket[with-handlers] expression should stash away the
-current value of @racket['rsp]. When a @racket[raise] happens, it grabs the
-stashed away value and installs it as the current value of @racket['rsp],
-effectively rolling back the stack to its state at the point at which the
-exception handler was installed. It should then jump to code that will carry out
-the applying of the predicates and right-hand-side functions.
-
-Since @racket[with-handlers] can be nested, you will need to maintain an
-arbitrarily large collection of exception handlers, each of which has a pointer
-into the stack and a label for the code to handle the exception. This collection
-should operate like a stack: each @racket[with-handlers] expression adds a new
-handler to the handler stack. If the body expression returns normally, the
-top-most handler should be removed. When a @racket[raise] happens, the top-most
-handler is popped and used.
 
 
 @section[#:style 'unnumbered]{Arity Checking, Rest Arguments, and Apply}
@@ -377,6 +300,93 @@ function call, but with some changes. The implementation should:
 ]
 
 
+@section[#:tag-prefix "proj-" #:style 'unnumbered #:tag "exceptions"]{Exceptions and Exception Handling}
+
+Exceptions and exception handling mechanisms are widely used in modern
+programming languages. Implement Racket’s @racket[raise] and
+@racket[with-handlers] forms to add exception handling.
+
+Here are the key features that need to be added:
+
+@itemlist[
+
+ @item{@racket[(raise _e)] will evaluate @racket[_e] and then ``raise'' the
+ value, side-stepping the usual flow of control and instead jumping to the most
+ recently installed compatible exception handler.}
+
+ @item{@racket[(with-handlers ([_p1 _f1] ...) _e)] will install a new exception
+  handler during the evaluation of @racket[_e]. If @racket[_e] raises an
+  exception that is not caught, the predicates @racket[_p1 ...] should be
+  applied to the raised value until finding the first @racket[_pi] that returns
+  a true value, at which point the corresponding function @racket[_fi] is called
+  with the raised value and the result of that application is the result of the
+  entire with-handlers expression. If @racket[_e] does not raise an error, its
+  value becomes the value of the with-handler expression.}
+
+ ]
+
+Here are some examples to help illustrate:
+
+@ex[
+(with-handlers ([string? (λ (s) (cons "got" s))])
+  (raise "a string!"))
+
+(with-handlers ([string? (λ (s) (cons "got" s))]
+                [number? (λ (n) (+ n n))])
+  (raise 10))
+
+(with-handlers ([string? (λ (s) (cons "got" s))]
+                [number? (λ (n) (+ n n))])
+  (+ (raise 10) 30))
+
+(let ((f (λ (x) (raise 10))))
+  (with-handlers ([string? (λ (s) (cons "got" s))]
+                  [number? (λ (n) (+ n n))])
+    (+ (f 10) 30)))
+
+(with-handlers ([string? (λ (s) (cons "got" s))]
+                [number? (λ (n) (+ n n))])
+  'nothing-bad-happens)
+
+(with-handlers ([symbol? (λ (s) (cons 'reraised s))])
+  (with-handlers ([string? (λ (s) (cons "got" s))]
+                  [number? (λ (n) (+ n n))])
+    (raise 'not-handled-by-inner-handler)))
+ ]
+
+Notice that when a value is raised, the enclosing context is discarded. In the
+third example, the surrounding @racket[(+ [] 30)] part is ignored and instead
+the raised value, @racket[10], is given the exception handler predicates,
+selecting the appropriate handler.
+
+Thinking about the implementation, what this means is that a portion of the
+stack needs to be discarded --- namely, the area between the current top of the
+stack and the stack that was in place when the @racket[with-handlers] expression
+was evaluated.
+
+This suggests that a @racket[with-handlers] expression should stash away the
+current value of @racket['rsp]. When a @racket[raise] happens, it grabs the
+stashed away value and installs it as the current value of @racket['rsp],
+effectively rolling back the stack to its state at the point at which the
+exception handler was installed. It should then jump to code that will carry out
+the applying of the predicates and right-hand-side functions.
+
+Since @racket[with-handlers] can be nested, you will need to maintain an
+arbitrarily large collection of exception handlers, each of which has a pointer
+into the stack and a label for the code to handle the exception. This collection
+should operate like a stack: each @racket[with-handlers] expression adds a new
+handler to the handler stack. If the body expression returns normally, the
+top-most handler should be removed. When a @racket[raise] happens, the top-most
+handler is popped and used.
+
+@bold{HINT:} Go slowly --- these features are tricky to implement. We have
+provided some small stubs, but it's not much. In @racket[compile-with-handlers],
+you should evaluate and set up the predicate-handler pairs and then execute the
+body. In @racket[compile-raise], you should handle the process of looking
+through the available handlers (in the proper order!) to see if one matches your
+raised value and, if it does, executing the corresponding handler function.
+
+
 @section[#:tag-prefix "proj-" #:style 'unnumbered #:tag "starter-code"]{Starter code changes}
 
 @emph{We have updated the base Loot AST and parser for you.} Some of these
@@ -451,8 +461,8 @@ For example:
  (parse-e '(apply f 1 (cons 2 '())))
  ]
 
-@bold{Exceptions and exception handling} also requires new AST nodes and an
-extension to the parser. The new AST nodes have the following definitions:
+@bold{Exceptions and exception handling} require new AST nodes and an extension
+to the parser. The new AST nodes have the following definitions:
 
 @#reader scribble/comment-reader
 (racketblock
