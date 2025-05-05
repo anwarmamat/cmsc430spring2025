@@ -91,9 +91,11 @@ The function body definition will also need to be updated. In Loot, this will be
 done in @racket[compile-lambda-define].
 
 No changes need to be made to the parser, and the interpreter has been updated
-to perform arity checking; you only need to make changes in the compiler. We
-have left @tt{TODO} comments for you in the places where you need to make
-changes. (You are allowed to make other changes if you see fit.)
+to perform arity checking; additionally, arity checking has been implemented in
+the compiler for the simple cases of regular application of plain functions.
+What is left for you to do is to ensure arity checking works in @emph{all}
+cases, which means it needs to work for @secref[#:tag-prefixes '("proj-")
+"rest"] and @secref[#:tag-prefixes '("proj-") "apply"].
 
 
 @subsection[#:tag-prefix "proj-" #:style 'unnumbered #:tag "rest"]{Variadic functions}
@@ -325,7 +327,10 @@ Here are the key features that need to be added:
 
  ]
 
-Here are some examples to help illustrate:
+Here are some examples to help you understand. @bold{NOTE:} For our purposes, we
+restrict @racket[_p1 ... _f1 ...] to be @emph{expressions}, so primitive
+operations cannot actually be used in the place of predicates or handlers. These
+examples are for illustrative purposes.
 
 @ex[
 (with-handlers ([string? (λ (s) (cons "got" s))])
@@ -366,7 +371,7 @@ was evaluated.
 
 This suggests that a @racket[with-handlers] expression should stash away the
 current value of @racket['rsp]. When a @racket[raise] happens, it grabs the
-stashed away value and installs it as the current value of @racket['rsp],
+stashed-away value and installs it as the current value of @racket['rsp],
 effectively rolling back the stack to its state at the point at which the
 exception handler was installed. It should then jump to code that will carry out
 the applying of the predicates and right-hand-side functions.
@@ -378,6 +383,13 @@ should operate like a stack: each @racket[with-handlers] expression adds a new
 handler to the handler stack. If the body expression returns normally, the
 top-most handler should be removed. When a @racket[raise] happens, the top-most
 handler is popped and used.
+
+@bold{NOTE:} The requirement that your @racket[with-handlers] forms can support
+an arbitrary number of predicate-handler clauses @emph{significantly} increases
+the difficulty of this component of the project. To help you out, we've capped
+the value of supporting two or more clauses at 10% of this part of the project,
+i.e., you can get 90% of the points for the exceptions part of the project by
+only supporting @racket[with-handlers] that have zero or one clauses.
 
 @bold{HINT:} Go slowly --- these features are tricky to implement. We have
 provided some small stubs, but it's not much. In @racket[compile-with-handlers],
@@ -507,8 +519,9 @@ working before moving on.
 
 @itemlist[
 
- @item{Start with @secref[#:tag-prefixes '("proj-") "arity"]; this should be
-  the easiest part. Make sure to get it working for plain function definitions.}
+ @item{Read up on @secref[#:tag-prefixes '("proj-") "arity"]; this should be the
+  easiest part to implement, but it requires finishing some of the other parts
+  to even have a place to implement it, so just keep it in mind as you go on.}
 
  @item{Move on to @secref[#:tag-prefixes '("proj-") "rest"]. You could start by
   emitting code that checks that the number of required arguments is acceptable.
