@@ -19,9 +19,8 @@ chops and good judgment.
 
 The starter code, which is based on Loot, is available on ELMS in the Final
 Project assignment text. Note that you do not need to bring forward features
-from past assignments, and in most cases we have already provided the necessary
-AST and parser code with a matching interpreter so you can focus on implementing
-the compiler.
+from past assignments, and we have already provided the necessary AST and parser
+code with a matching interpreter so you can focus on implementing the compiler.
 
 Please be sure to read the entire problem description before starting. We've
 included a number of @secref[#:tag-prefixes '("proj-") "suggestions"] on how to
